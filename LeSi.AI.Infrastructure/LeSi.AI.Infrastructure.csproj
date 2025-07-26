@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Infrastructure</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.1.66" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.6.25358.103" />
+      <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.22.1" />
+      <PackageReference Include="MySql.Data" Version="8.0.11" />
+      <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
+      <PackageReference Include="YoloDotNet" Version="1.2.0" />
+    </ItemGroup>
+
+</Project>
