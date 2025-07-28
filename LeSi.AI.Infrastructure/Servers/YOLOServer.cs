@@ -22,8 +22,9 @@ public class YoloServer
     private static readonly string? BasePath =
         Directory.GetCurrentDirectory();
 
-    public async Task Detection(AiTaskMessage message)
+    public async Task<string> Detection(AiTaskMessage message)
     {
+        string base64Image = "";
         try
         {
             string base64 = message.Photo.Substring(message.Photo.IndexOf(',') + 1);
@@ -31,7 +32,6 @@ public class YoloServer
             using (MemoryStream ms = new MemoryStream(data))
             {
                 var sbjgCount = 0;
-                string base64Image = "";
                 var result = "";
                 using (var image = Image.Load<Rgba32>(ms))
                 {
@@ -65,14 +65,14 @@ public class YoloServer
 
                 // 更新图片表
                 var getPhotoIdSql = "SELECT PhotosId FROM YoLoTbs WHERE Id = @Id";
-                var photoId = await _connection.QueryFirstOrDefaultAsync<long>(getPhotoIdSql, new { Id = message.TaskId });
+                var photoId =
+                    await _connection.QueryFirstOrDefaultAsync<long>(getPhotoIdSql, new { Id = message.TaskId });
                 if (photoId > 0)
                 {
                     var updatePhotoSql = @"
                 UPDATE Photos 
                 SET PhotoBase64 = @PhotoBase64
                 WHERE PhotosId = @PhotoId";
-
                     await _connection.ExecuteAsync(updatePhotoSql, new
                     {
                         PhotoBase64 = "data:image/jpeg;base64," + base64Image,
@@ -94,11 +94,15 @@ public class YoloServer
                 ErrorMsg = $"处理失败: {ex.Message}",
                 Id = message.TaskId
             });
+            return "<UNK>";
         }
+
+        return "data:image/jpeg;base64," + base64Image;
     }
 
-    public async Task Classification(AiTaskMessage message)
+    public async Task<string> Classification(AiTaskMessage message)
     {
+        var result = "";
         try
         {
             string base64 = message.Photo.Substring(message.Photo.IndexOf(',') + 1);
@@ -106,7 +110,6 @@ public class YoloServer
             using (MemoryStream ms = new MemoryStream(data))
             {
                 var sbjgCount = 0;
-                var result = "";
                 using (var image = Image.Load<Rgba32>(ms))
                 {
                     using var yolo = new Yolo(Path.Combine(BasePath, message.Path), false);
@@ -156,5 +159,7 @@ public class YoloServer
                 Id = message.TaskId
             });
         }
+
+        return result;
     }
 }
